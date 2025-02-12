@@ -1,0 +1,4 @@
+.idea
+.vscode
+nodeService/node_modules
+phpService/vendor

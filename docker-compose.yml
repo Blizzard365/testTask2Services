@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./phpService/:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - php-fpm
+  node-service:
+    build: 
+      context: .
+      dockerfile: docker/nodejs/Dockerfile
+    container_name: node-service
+    env_file:
+      - ./nodeService/.env
+    volumes:
+      - ./nodeService/:/app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+  php-fpm:
+    build: 
+      context: .
+      dockerfile: docker/php-fpm/Dockerfile
+    container_name: php-fpm
+    restart: always
+    volumes:
+      - ./phpService/:/var/www
+    env_file:
+      - ./phpService/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    env_file:
+      - ./docker/nodejs/database/.env
+    ports:
+      - "5432:5432"
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    env_file:
+      - ./docker/php-fpm/database/.env
+    ports:
+      - "3306:3306"
+ 
